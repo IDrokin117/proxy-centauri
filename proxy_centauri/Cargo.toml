@@ -1,0 +1,16 @@
+[package]
+name = "proxy_centauri"
+version = "0.1.0"
+edition = "2024"
+authors = ["Igor Drokin"]
+repository = "https://github.com/IDrokin117/proxy-centauri"
+license = "MIT"
+
+[dependencies]
+
+[lib]
+path = "lib/lib.rs"
+
+[[bin]]
+name = "procent"
+path = "bin/main.rs"
