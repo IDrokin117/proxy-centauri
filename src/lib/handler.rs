@@ -50,7 +50,7 @@ pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()
         Some(proxy_auth_header) => {
             let (user, password) = parse_proxy_auth_token(proxy_auth_header.value)?;
 
-            let db_user = ctx.backend.fetch_user(&user)?;
+            let db_user = ctx.backend.fetch_user(&user).await?;
             if db_user.is_none() {
                 source
                     .write_all(ProxyResponse::Unauthorized.as_bytes())
@@ -88,6 +88,7 @@ pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()
                 }
                 Err(err) => {
                     registry.dec_concurrency(&user);
+                    drop(registry);
 
                     warn!(message = format!("{:?}", err));
                     match err {
