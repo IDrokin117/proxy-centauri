@@ -1,8 +1,8 @@
-use crate::auth::Database;
 use crate::config::{build_config, init};
-use crate::context::{Context};
+use crate::context::Context;
 use crate::handler::handle_connection;
 use crate::registry::Registry;
+use crate::source::{Backend, CSVConnection, CSVConnectionParameters, DBConnection};
 use anyhow::Result;
 use std::time::Duration;
 use tokio::net::TcpListener;
@@ -19,18 +19,16 @@ impl Server {
     pub async fn run_on_addr(addr: Option<String>) -> Result<()> {
         init();
         let config = build_config();
-        let database = Database::new_persistence();
+        let backend = Backend::new(DBConnection::Csv(CSVConnection::new(
+            CSVConnectionParameters::default(),
+        )));
         let registry = Registry::new();
-        let ctx = Context::new(
-            config,
-            database,
-            registry,
-        );
+        let ctx = Context::new(config, backend, registry);
         let bind_addr = addr.unwrap_or_else(|| ctx.config.addr());
         let global_span = span!(Level::TRACE, "global-log-tracer");
         let _ = global_span.enter();
         let ctx_copy = ctx.clone();
-        tokio::spawn(async move{
+        tokio::spawn(async move {
             loop {
                 sleep(Duration::from_secs(10)).await;
                 let stats_guard = ctx_copy.registry.lock().await;
@@ -52,13 +50,7 @@ impl Server {
             let _guard = socket_span.enter();
             debug!("Socket connection accepted {socket_addr}");
             let ctx_copy = ctx.clone();
-            tokio::spawn(async {
-                handle_connection(
-                    socket,
-                    ctx_copy
-                )
-                .await
-            });
+            tokio::spawn(async { handle_connection(socket, ctx_copy).await });
         }
     }
 }

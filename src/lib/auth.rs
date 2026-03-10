@@ -1,22 +1,5 @@
 use anyhow::{Result, anyhow};
 use base64::{Engine as _, engine::general_purpose};
-use std::collections::HashMap;
-
-pub struct Database(HashMap<String, String>);
-
-impl Database {
-    pub fn new_persistence() -> Self {
-        let users = HashMap::from([
-            ("procent".to_string(), "o953zY7lnkYMEl5D".to_string()),
-            ("admin".to_string(), "12345".to_string()),
-        ]);
-        Self(users)
-    }
-
-    pub fn is_authenticated(&self, user: &str, password: &str) -> bool {
-        self.0.get(user).is_some_and(|pass| pass == password)
-    }
-}
 
 pub fn parse_proxy_auth_token(token: &[u8]) -> Result<(String, String)> {
     let token_str = std::str::from_utf8(token)?;
@@ -34,6 +17,3 @@ pub fn parse_proxy_auth_token(token: &[u8]) -> Result<(String, String)> {
         .ok_or_else(|| anyhow!("Invalid credentials format: expected 'user:password'"))
 }
 
-pub fn authenticate(user: &str, password: &str, database: &Database) -> bool {
-    database.is_authenticated(user, password)
-}

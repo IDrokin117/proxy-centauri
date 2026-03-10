@@ -1,0 +1,4 @@
+username,password,proxy_username,proxy_password,concurrency_limit,traffic_limit,status
+procent,o953zY7lnkYMEl5D,,,,,ok
+admin,12345,,,2,10000,ok
+banned,dqdwqd1231_*qWTd,,,,,banned

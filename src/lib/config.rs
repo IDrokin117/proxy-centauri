@@ -2,14 +2,14 @@ use std::sync::Once;
 
 static INIT: Once = Once::new();
 
-pub struct Config {
-    pub port: String,
-    pub host: String,
-    pub connection_timeout: u64,
+pub(crate) struct Config {
+    pub(crate) port: String,
+    pub(crate) host: String,
+    pub(crate) connection_timeout: u64,
 }
 
 impl Config {
-    pub fn addr(&self) -> String {
+    pub(crate) fn addr(&self) -> String {
         format!("{}:{}", self.host, self.port)
     }
 }

@@ -9,12 +9,14 @@ license = "MIT"
 [dependencies]
 anyhow = "1.0.100"
 base64 = "0.22.1"
+csv = "1.4.0"
 dotenv = "0.15.0"
 httparse = "1.10.1"
 thiserror = "2.0.17"
 tokio = { version = "1.49.0", features = ["full"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
+serde = { version = "1.0.228", features = ["derive"] }
 
 [lib]
 path = "lib/lib.rs"

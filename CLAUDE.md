@@ -12,7 +12,8 @@ proxima_centauri/lib/
 ├── handler.rs     # Request handling, auth, limits
 ├── tunnel.rs      # Bidirectional TCP streaming
 ├── auth.rs        # User database
-├── statistics.rs  # Traffic/concurrency tracking, Limiter
+├── registry.rs    # User registry with limits & stats
+├── context.rs     # Global application context
 ├── config.rs      # Configuration
 ├── http_utils/    # ProxyResponse enum
 └── tests/         # Integration tests
@@ -30,10 +31,15 @@ proxima_centauri/lib/
 ## Commands
 ```bash
 cargo check          # Compile check
-cargo test --lib     # Run tests
-cargo clippy         # Lint
+cargo test --lib     # Run tests (16 tests)
+cargo clippy         # Lint (0 warnings)
 cargo run            # Run server
 ```
+
+## CI
+GitHub Actions runs on PR:
+- Tests job: `cargo test --lib`
+- Clippy job: `cargo clippy -- -D warnings`
 
 ## Auth
 Users: `procent:o953zY7lnkYMEl5D`, `admin:12345`

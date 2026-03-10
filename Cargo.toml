@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "proxima_centauri",
+    "src",
 ]
 resolver = "2"
 
@@ -11,7 +11,7 @@ repository = "https://github.com/IDrokin117/proxima-centauri"
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
+nursery = { level = "allow", priority = -1 }
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 module_name_repetitions = "allow"

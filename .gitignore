@@ -28,3 +28,6 @@ target
 *.env
 
 .claude
+
+/src/files/*
+!/src/files/db.csv.example
