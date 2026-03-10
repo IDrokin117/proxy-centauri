@@ -5,6 +5,7 @@ pub enum ProxyResponse {
     MethodNotAllowed,
     TooManyRequests,
     QuotaExceeded,
+    BadRequest,
 }
 
 impl ProxyResponse {
@@ -18,6 +19,7 @@ impl ProxyResponse {
             Self::MethodNotAllowed => b"HTTP/1.1 405 Method Not Allowed\r\n\r\n",
             Self::TooManyRequests =>  b"HTTP/1.1 429 Too Many Requests\r\n\r\n",
             Self::QuotaExceeded =>  b"HTTP/1.1 403 Forbidden\r\n\r\n",
+            Self::BadRequest => b"HTTP/1.1 400 Bad Request\r\n\r\n",
         }
     }
 }

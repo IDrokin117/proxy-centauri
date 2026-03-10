@@ -131,7 +131,7 @@ impl UserContext {
         self.last_update_at = Instant::now();
     }
     pub(crate) fn dec_concurrency(&mut self) {
-        self.stats_table.concurrency -= 1;
+        self.stats_table.concurrency = self.stats_table.concurrency.saturating_sub(1);
         self.last_update_at = Instant::now();
     }
 }
@@ -145,6 +145,8 @@ pub(crate) enum LimitError {
     ConcurrencyLimitExceed(u16),
     #[error("Traffic limit exceed")]
     TrafficLimitExceed(u128),
+    #[error("User not found")]
+    UserNotFound,
 }
 
 impl Registry {
@@ -186,8 +188,8 @@ impl Registry {
     }
 
     pub(crate) fn check_limits(&self, user: &str) -> Result<(), LimitError> {
-        let stats = self.inner.get(user).unwrap();
-        stats.limiter.is_limit_exceed(&stats.stats_table)
+        let ctx = self.inner.get(user).ok_or(LimitError::UserNotFound)?;
+        ctx.limiter.is_limit_exceed(&ctx.stats_table)
     }
 }
 
@@ -198,8 +200,7 @@ impl Display for Registry {
                 f,
                 "User `{}` stats. ingress: {}, egress: {}",
                 user, ctx.stats_table.ingress_traffic, ctx.stats_table.egress
-            )
-            .expect("TODO: panic message");
+            )?;
         }
         Ok(())
     }
@@ -207,15 +208,7 @@ impl Display for Registry {
 
 impl Debug for Registry {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        for (user, ctx) in &self.inner {
-            writeln!(
-                f,
-                "User `{}` stats. ingress: {}, egress: {}",
-                user, ctx.stats_table.ingress_traffic, ctx.stats_table.egress
-            )
-            .expect("TODO: panic message");
-        }
-        Ok(())
+        Display::fmt(self, f)
     }
 }
 

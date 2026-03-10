@@ -85,9 +85,9 @@ impl From<UserRecord> for Limits {
 }
 
 pub(crate) enum ConnectionState {
-    UNINIT,
-    OPENED,
-    CLOSED,
+    Uninit,
+    Opened,
+    Closed,
 }
 pub(crate) struct CSVConnection {
     params: CSVConnectionParameters,
@@ -100,7 +100,7 @@ impl CSVConnection {
         CSVConnection {
             params,
             data: Mutex::new(Vec::new()),
-            state: Mutex::new(ConnectionState::UNINIT),
+            state: Mutex::new(ConnectionState::Uninit),
         }
     }
 }
@@ -112,12 +112,12 @@ impl Connection for CSVConnection {
         const MAX_FILE_SIZE: u64 = 10_000;
         if std::fs::metadata(&self.params.file_path).map(|m| m.len())? > MAX_FILE_SIZE {
             return Err(anyhow!(format!(
-                "CSV file must less than {MAX_FILE_SIZE} bytes"
+                "CSV file must be less than {MAX_FILE_SIZE} bytes"
             )));
         }
         let mut state = self.state.lock().await;
         match *state {
-            ConnectionState::UNINIT => {
+            ConnectionState::Uninit => {
                 let mut reader = Reader::from_path(&self.params.file_path)?;
                 let mut data: Vec<UserRecord> = Vec::new();
 
@@ -126,14 +126,14 @@ impl Connection for CSVConnection {
                     data.push(user);
                 }
                 *self.data.lock().await = data;
-                *state = ConnectionState::OPENED;
+                *state = ConnectionState::Opened;
                 Ok(())
             }
-            ConnectionState::OPENED => {
+            ConnectionState::Opened => {
                 info!("Connection already opened");
                 Ok(())
             }
-            ConnectionState::CLOSED => Err(anyhow!("Can not reopen closed connection")),
+            ConnectionState::Closed => Err(anyhow!("Can not reopen closed connection")),
         }
     }
 
@@ -149,7 +149,7 @@ impl Connection for CSVConnection {
 
     async fn close(&self) -> Result<()> {
         self.data.lock().await.clear();
-        *self.state.lock().await = ConnectionState::CLOSED;
+        *self.state.lock().await = ConnectionState::Closed;
         Ok(())
     }
 }
@@ -179,7 +179,7 @@ pub(crate) struct Backend {
 impl Backend {
     pub(crate) fn new(connection: DBConnection) -> Self {
         Self {
-            connection: connection,
+            connection,
             cache: Mutex::new(HashMap::new()),
         }
     }

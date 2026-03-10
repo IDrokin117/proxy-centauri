@@ -123,19 +123,19 @@ async fn test_malformed_request() -> Result<()> {
 
     let result = read_response(&mut socket).await;
 
-    assert!(result.is_ok() || result.is_err());
+    assert!(result.is_ok());
 
     Ok(())
 }
 
 #[tokio::test]
 async fn test_server_cleanup() -> Result<()> {
-    let port = PORT_COUNTER.fetch_add(1, Ordering::SeqCst);
-    let addr = format!("127.0.0.1:{port}");
+    let addr: String;
 
     {
-        let _server = TestServer::start().await;
-        let socket = TcpStream::connect(_server.addr()).await;
+        let server = TestServer::start().await;
+        addr = server.addr().to_string();
+        let socket = TcpStream::connect(server.addr()).await;
         assert!(socket.is_ok());
     }
 

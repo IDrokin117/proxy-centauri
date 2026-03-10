@@ -10,6 +10,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tracing::{debug, error, warn};
 
+#[allow(clippy::too_many_lines)]
 pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()> {
     let mut buff = [0u8; 1024];
 
@@ -24,11 +25,21 @@ pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()
 
     let mut headers = [EMPTY_HEADER; 16];
     let mut request = Request::new(&mut headers);
-    request.parse(&buff[..size])?;
+    let status = request.parse(&buff[..size])?;
+    if status.is_partial() {
+        source
+            .write_all(ProxyResponse::BadRequest.as_bytes())
+            .await?;
+        return Ok(());
+    }
 
     debug!(request = format!("{:?}", request));
-    let request_method = request.method.unwrap();
-    let request_path = request.path.unwrap();
+    let Some(request_method) = request.method else {
+        bail!("Missing request method after complete parse");
+    };
+    let Some(request_path) = request.path else {
+        bail!("Missing request path after complete parse");
+    };
 
     if request_method != "CONNECT" {
         source
@@ -73,17 +84,27 @@ pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()
                 Ok(()) => {
                     drop(registry);
 
-                    let mut target = TcpStream::connect(request_path).await?;
-                    let (ingress, egress) = connect_target(
-                        &mut source,
-                        &mut target,
-                        Duration::from_secs(ctx.config.connection_timeout),
-                    )
-                    .await?;
+                    let result: Result<(u64, u64)> = async {
+                        let mut target = TcpStream::connect(request_path).await?;
+                        connect_target(
+                            &mut source,
+                            &mut target,
+                            Duration::from_secs(ctx.config.connection_timeout),
+                        )
+                        .await
+                    }
+                    .await;
 
                     let mut registry = ctx.registry.lock().await;
-                    registry.add_ingress_traffic(&user, u128::from(ingress));
-                    registry.add_egress_traffic(&user, u128::from(egress));
+                    match result {
+                        Ok((ingress, egress)) => {
+                            registry.add_ingress_traffic(&user, u128::from(ingress));
+                            registry.add_egress_traffic(&user, u128::from(egress));
+                        }
+                        Err(e) => {
+                            warn!(error = %e, "Connection failed");
+                        }
+                    }
                     registry.dec_concurrency(&user);
                 }
                 Err(err) => {
@@ -101,6 +122,9 @@ pub async fn handle_connection(mut source: TcpStream, ctx: Context) -> Result<()
                             source
                                 .write_all(ProxyResponse::QuotaExceeded.as_bytes())
                                 .await?;
+                        }
+                        LimitError::UserNotFound => {
+                            bail!("check_limits called for unknown user");
                         }
                     }
                 }
