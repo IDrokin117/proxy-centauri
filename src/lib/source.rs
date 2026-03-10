@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use tokio::sync::Mutex;
 use tracing::info;
 
+#[allow(dead_code)]
 pub(crate) enum DBConnection {
     Csv(CSVConnection),
     Sql(SQLConnection),
@@ -37,6 +38,7 @@ impl Connection for DBConnection {
     }
 }
 
+#[allow(dead_code)]
 trait Connection {
     type Record;
     async fn establish(&self) -> Result<()>;
@@ -57,7 +59,7 @@ impl CSVConnectionParameters {
 }
 impl Default for CSVConnectionParameters {
     fn default() -> Self {
-        CSVConnectionParameters::new(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("files/db.csv"))
+        CSVConnectionParameters::new(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("files/db.csv.example"))
     }
 }
 
@@ -84,6 +86,7 @@ impl From<UserRecord> for Limits {
     }
 }
 
+#[allow(dead_code)]
 pub(crate) enum ConnectionState {
     Uninit,
     Opened,

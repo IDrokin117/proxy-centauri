@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/IDrokin117/proxy-centauri/actions/workflows/ci.yml/badge.svg)](https://github.com/IDrokin117/proxy-centauri/actions)
+[![CI](https://github.com/IDrokin117/proxima-centauri/actions/workflows/ci.yml/badge.svg)](https://github.com/IDrokin117/proxima-centauri/actions)
 
 > A high-performance proxy server with user-based authentication and traffic statistics.
 
@@ -169,7 +169,7 @@ cargo check
 cargo clippy
 ```
 
-Configured with `pedantic + nursery` lints in `Cargo.toml`.
+Configured with `pedantic` lints in `Cargo.toml` (`nursery = "allow"`).
 
 ### Formatting
 

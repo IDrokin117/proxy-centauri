@@ -229,7 +229,7 @@ async fn test_traffic_limit_exceeded() -> Result<()> {
     let server = TestServer::start().await;
     let target = MockTargetServer::start_sender(15_000).await;
 
-    let auth = "cHJvY2VudDpvOTUzelk3bG5rWU1FbDVE";
+    let auth = "YWRtaW46MTIzNDU=";
     let request = connect_request_to(target.addr(), auth);
 
     {
@@ -278,7 +278,7 @@ async fn test_concurrency_limit_exceeded() -> Result<()> {
     let target2 = MockTargetServer::start_echo().await;
     let target3 = MockTargetServer::start_echo().await;
 
-    let auth = "cHJvY2VudDpvOTUzelk3bG5rWU1FbDVE";
+    let auth = "YWRtaW46MTIzNDU=";
 
     let mut socket1 = TcpStream::connect(server.addr()).await?;
     socket1

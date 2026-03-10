@@ -127,7 +127,7 @@ impl UserContext {
     }
 
     pub(crate) fn inc_concurrency(&mut self) {
-        self.stats_table.concurrency += 1;
+        self.stats_table.concurrency = self.stats_table.concurrency.saturating_add(1);
         self.last_update_at = Instant::now();
     }
     pub(crate) fn dec_concurrency(&mut self) {

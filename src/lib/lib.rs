@@ -10,7 +10,6 @@ mod tunnel;
 mod tests;
 mod context;
 
-#[allow(dead_code)]
 mod source;
 
 pub use server::Server;
